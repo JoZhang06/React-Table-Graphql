@@ -1,4 +1,4 @@
-"use strict";
+// Función para eliminar un usuario
 function deleteUser(id) {
     const confirmDelete = confirm("Are you sure to delete this user?");
     if (confirmDelete) {
@@ -15,12 +15,10 @@ function deleteUser(id) {
         })
             .then((res) => res.json())
             .then((res) => {
-            const user = res.data.deleteUser;
-            const row = document.getElementById(`user-${user.id}`);
-            if (row) {
+                const user = res.data.deleteUser;
+                const row = document.getElementById(`user-${user.id}`);
                 row.remove();
-            }
-        })
+            })
             .catch((err) => console.error(err));
     }
-}
+  }

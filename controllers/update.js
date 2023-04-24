@@ -1,17 +1,17 @@
-"use strict";
 // Función para mostrar el formulario de edición de usuario
 function showEditForm(id, name, email) {
     const modal = document.createElement("div");
     modal.classList.add("modal");
+  
     const form = document.createElement("form");
     form.innerHTML = `
-      <label for="name">Nombre:</label>
-      <input type="text" name="name" value="${name}" required>
-      <label for="email">Correo electrónico:</label>
-      <input type="email" name="email" value="${email}" required>
-      <button type="submit">Save</button>
-      <button type="button" onclick="closeModal()">Cancel</button>
-    `;
+  <label for="name">Nombre:</label>
+  <input type="text" name="name" value="${name}" required>
+  <label for="email">Correo electrónico:</label>
+  <input type="email" name="email" value="${email}" required>
+  <button type="submit">Save</button>
+  <button type="button" onclick="closeModal()">Cancel</button>
+  `;
     form.addEventListener("submit", function (event) {
         event.preventDefault();
         const nameInput = form.querySelector("[name='name']");
@@ -21,45 +21,48 @@ function showEditForm(id, name, email) {
         editUser(id, newName, newEmail);
         modal.remove();
     });
+  
     modal.appendChild(form);
     document.body.appendChild(modal);
-}
-// Función para editar un usuario
-function editUser(id, name, email) {
+  }
+  
+  // Función para editar un usuario
+  function editUser(id, name, email) {
     fetch("http://localhost:4000/graphql", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             query: `mutation {
-          updateUser(id: ${id}, name: "${name}", email: "${email}") {
-            id
-            name
-            email
-            updatedAt
-          }
-        }`,
+      updateUser(id: ${id}, name: "${name}", email: "${email}") {
+        id
+        name
+        email
+        updatedAt
+      }
+    }`,
         }),
     })
         .then((res) => res.json())
         .then((res) => {
-        const user = res.data.updateUser;
-        const row = document.getElementById(`user-${user.id}`);
-        row.innerHTML = `
-          <td>${user.id}</td>
-          <td>${user.name}</td>
-          <td>${user.email}</td>
-          <td>${new Date(parseInt(user.createdAt)).toLocaleString()}</td>
-          <td>${new Date(parseInt(user.updatedAt)).toLocaleString()}</td>
-          <td>
-            <button onclick="showEditForm(${user.id}, '${user.name}', '${user.email}')">Editar</button>
-            <button onclick="deleteUser(${user.id})">Eliminar</button>
-          </td>
-        `;
-    })
+            const user = res.data.updateUser;
+            const row = document.getElementById(`user-${user.id}`);
+            row.innerHTML = `
+      <td>${user.id}</td>
+      <td>${user.name}</td>
+      <td>${user.email}</td>
+      <td>${new Date(parseInt(user.createdAt)).toLocaleString()}</td>
+      <td>${new Date(parseInt(user.updatedAt)).toLocaleString()}</td>
+      <td>
+        <button onclick="showEditForm(${user.id}, '${user.name}', '${user.email}')">Editar</button>
+        <button onclick="deleteUser(${user.id})">Eliminar</button>
+      </td>
+    `;
+        })
         .catch((err) => console.error(err));
-}
-// Función para cerrar el modal
-function closeModal() {
+  }
+  
+  // Funcion cancelar modal
+  function closeModal() {
     const modal = document.querySelector(".modal");
-    modal === null || modal === void 0 ? void 0 : modal.remove();
-}
+    modal.remove();
+  }

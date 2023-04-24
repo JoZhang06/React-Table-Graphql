@@ -1,15 +1,19 @@
 const { ApolloServer, gql } = require('apollo-server');
 const { PrismaClient } = require('@prisma/client');
+const { GraphQLDate } = require('graphql-scalars'); // importamos el tipo Date del paquete graphql-scalars
+
 
 const prisma = new PrismaClient();
 
 const typeDefs = gql`
+scalar Date
+
   type User {
     id: Int!
     name: String!
     email: String!
-    createdAt: String!
-    updatedAt: String!
+    createdAt: Date!
+    updatedAt: Date!
   }
 
   type Query {
@@ -25,6 +29,7 @@ const typeDefs = gql`
 `;
 
 const resolvers = {
+  Date: GraphQLDate,
   Query: {
     users: async () => {
       return await prisma.user.findMany();

@@ -1,15 +1,19 @@
 import { ApolloServer, gql } from 'apollo-server';
 import { PrismaClient } from '@prisma/client';
+import { GraphQLDate } from 'graphql-scalars'; // importamos el tipo Date del paquete graphql-scalars
+
 
 const prisma = new PrismaClient();
 
 const typeDefs = gql`
-  type User {
+    scalar Date
+
+    type User {
     id: Int!
     name: String!
     email: String!
-    createdAt: String!
-    updatedAt: String!
+    createdAt: Date!
+    updatedAt: Date!
   }
 
   type Query {
@@ -25,6 +29,7 @@ const typeDefs = gql`
 `;
 
 const resolvers = {
+  Date: GraphQLDate,
   Query: {
     users: () => prisma.user.findMany(),
     user: (_parent: any, { id }: { id: number }) => prisma.user.findUnique({ where: { id } }),
@@ -45,11 +50,10 @@ const resolvers = {
   },
 };
 
-  
-  const server = new ApolloServer({ typeDefs, resolvers });
-  
-  server.listen().then(({ url }) => {
-    console.log(`🚀 Server ready at ${url}`);
-  });
 
-  
+const server = new ApolloServer({ typeDefs, resolvers });
+
+server.listen().then(({ url }) => {
+  console.log(`🚀 Server ready at ${url}`);
+});
+
