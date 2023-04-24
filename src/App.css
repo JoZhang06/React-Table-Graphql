@@ -1,0 +1,268 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+/* Fondo y fuente */
+body {
+  background-color: #292929;
+  color: #fff;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 16px;
+}
+
+h3 {
+  text-align: center;
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Encabezado */
+.neon-border {
+  font-size: 50px;
+  color: #c4d9df;
+  text-align: center;
+  text-shadow: 0 0 5px #ff9100, 0 0 10px #ff7300, 0 0 15px #ff7300, 0 0 20px #ff5100, 0 0 35px #ff8800, 0 0 40px #df4d4d, 0 0 50px #ff0000, 0 0 75px #ff0000;
+}
+
+/* Botones */
+button {
+  background-color: #ff8800;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+button:hover {
+  background-color: #ff9900;
+}
+
+/* Formulario */
+form label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+form input[type="text"],
+form input[type="email"] {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+form button[type="submit"],
+form button[type="button"] {
+  display: block;
+  margin-top: 10px;
+}
+
+/* Tabla */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+table th,
+table td {
+  padding: 10px;
+  text-align: left;
+  background-color: #454546;
+  border-bottom: 1px solid #ddd;
+}
+
+table th {
+  background-color: #ff8800;
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+table td {
+  font-size: 16px;
+}
+
+table tr:hover {
+  background-color: #d1bcbc;
+}
+
+/*Modal Styles*/
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(35, 35, 35, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal form {
+  background-color: #2e2e2e;
+  padding: 3rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 3rem rgba(0, 0, 0, 0.5);
+}
+
+.modal label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+  color: #c7c7c7;
+  font-weight: bold;
+}
+
+.modal input[type="text"],
+.modal input[type="email"] {
+  display: block;
+  width: 100%;
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #696969;
+  font-size: 1.1rem;
+  color: #c7c7c7;
+  background-color: #2e2e2e;
+}
+
+.modal button[type="submit"] {
+  display: block;
+  width: 100%;
+  padding: 0.8rem;
+  margin-top: 1rem;
+  border-radius: 0.5rem;
+  background-color: #0a81ab;
+  color: #fff;
+  border: none;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+}
+
+.modal button[type="button"] {
+  display: block;
+  width: 100%;
+  padding: 0.8rem;
+  margin-top: 1rem;
+  border-radius: 0.5rem;
+  background-color: #c02f2f;
+  color: #fff;
+  border: none;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+}
+
+.modal-btn-cancel:hover {
+  background-color: #666;
+  color: #fff;
+}
+
+/*Css del modal de crear*/
+#modal-add {
+  display: none;
+}
+
+#modal-add {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+  background-color: #535353;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+
+#cancel-button {
+  background-color: #c52d2d;
+  color: #e9e3e3;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+#cancel-button:hover {
+  background-color: #aaa;
+}
+
+#add-user-form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+label {
+  margin-top: 10px;
+}
+
+input[type="text"],
+input[type="email"] {
+  margin-bottom: 10px;
+  padding: 5px;
+  font-size: 16px;
+  border: none;
+  border-bottom: 1px solid #ccc;
+  width: 100%;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus {
+  outline: none;
+  border-bottom: 1px solid #000;
+}
