@@ -1,7 +1,6 @@
 import { ApolloServer, gql } from 'apollo-server';
 import { PrismaClient } from '@prisma/client';
-import { GraphQLDate } from 'graphql-scalars'; // importamos el tipo Date del paquete graphql-scalars
-
+import { GraphQLDate } from 'graphql-scalars'; // importamos el tipo Date del paquete graphql-scalars para el dato tipo fecha
 
 const prisma = new PrismaClient();
 
@@ -56,4 +55,4 @@ const server = new ApolloServer({ typeDefs, resolvers });
 server.listen().then(({ url }) => {
   console.log(`🚀 Server ready at ${url}`);
 });
-
+ 

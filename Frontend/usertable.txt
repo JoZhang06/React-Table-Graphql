@@ -1,0 +1,251 @@
+uneme todo esto para hacer la funcion crear usuario
+import { ApolloClient, InMemoryCache, gql, useQuery, useMutation } from '@apollo/client';
+import { useState } from 'react';
+
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const client = new ApolloClient({
+  uri: 'http://localhost:4000',
+  cache: new InMemoryCache()
+});
+
+const GET_USERS = gql`
+  query GetUsers { 
+    users {
+      id
+      name
+      email
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+const CREATE_USER = gql`
+  mutation CreateUser($name: String!, $email: String!) {
+    createUser(name: $name, email: $email) {
+      success
+      message
+      user {
+        id
+        name
+        email
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`;
+
+const DELETE_USER = gql`
+  mutation DeleteUser($id: ID!) {
+    deleteUser(id: $id) {
+      success
+      message
+    }
+  }
+`;
+
+
+function UserTable() {
+  const { loading, error, data } = useQuery(GET_USERS, { client });
+
+  const [createUser] = useMutation(CREATE_USER, {
+    update(cache, { data: { createUser } }) {
+      const newUserData = createUser.user;
+      cache.modify({
+        fields: {
+          users(existingUsers = []) {
+            const newUserRef = cache.writeFragment({
+              data: newUserData,
+              fragment: gql`
+                fragment NewUser on User {
+                  id
+                  name
+                  email
+                  createdAt
+                  updatedAt
+                }
+              `
+            });
+            return [...existingUsers, newUserRef];
+          }
+        }
+      });
+    }
+  }
+  );
+
+
+  const [showCreateUserForm, setShowCreateUserForm] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error :(</p>;
+
+  const users: User[] = data.users;
+
+  const handleShowCreateUserForm = () => {
+    setShowCreateUserForm(true);
+  };
+
+  const handleHideCreateUserForm = () => {
+    setShowCreateUserForm(false);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log(`Submitting new user: ${name} ${email}`);
+    try {
+      const { data } = await createUser({ variables: { name, email } });
+      console.log(data.createUser.message);
+    } catch (e) {
+      console.error(e);
+    }
+    setName("");
+    setEmail("");
+    setShowCreateUserForm(false);
+  };
+
+  return (
+    <div>
+      <br />
+      <h3 className="neon-border">User Tables</h3>
+      <br />
+      <button onClick={handleShowCreateUserForm}>New user</button> {/* Agregar botón para mostrar el formulario */}
+      <br />
+      {showCreateUserForm && (
+        <div id="modal-add">
+          <div className="modal-content">
+            <form onSubmit={handleSubmit}>
+              <label htmlFor="name">Name:</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                title="Please enter a name"
+              />
+              <label htmlFor="email">Email:</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                title="Please enter a valid email address"
+              />
+              <button type="submit">Add user</button>
+              <button id="cancel-button" type="button" onClick={handleHideCreateUserForm}>
+                Cancel
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+      <br />
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Created At</th>
+            <th>Updated At</th>
+            <th>Modify</th>
+            <th>Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map((user: User) => (
+            <tr key={user.id}>
+              <td>{user.id}</td>
+              <td>{user.name}</td>
+              <td>{user.email}</td>
+              <td>{user.createdAt.toString()}</td>
+              <td>{user.updatedAt.toString()}</td>
+              <td><button className='blue-button'>Modify</button> { }</td>
+              <td><button
+                className="red-button"
+              >
+                Delete
+              </button></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+export default UserTable;
+
+import { ApolloServer, gql } from 'apollo-server';
+import { PrismaClient } from '@prisma/client';
+import { GraphQLDate } from 'graphql-scalars'; // importamos el tipo Date del paquete graphql-scalars para el dato tipo fecha
+
+const prisma = new PrismaClient();
+
+const typeDefs = gql`
+    scalar Date
+
+    type User {
+    id: Int!
+    name: String!
+    email: String!
+    createdAt: Date!
+    updatedAt: Date!
+  }
+
+  type Query {
+    users: [User!]!
+    user(id: Int!): User
+  }
+
+  type Mutation {
+    createUser(name: String!, email: String!): User!
+    updateUser(id: Int!, name: String, email: String): User!
+    deleteUser(id: Int!): User!
+  }
+`;
+
+const resolvers = {
+  Date: GraphQLDate,
+  Query: {
+    users: () => prisma.user.findMany(),
+    user: (_parent: any, { id }: { id: number }) => prisma.user.findUnique({ where: { id } }),
+  },
+  Mutation: {
+    createUser: async (_parent: any, { name, email }: { name: string; email: string }) => {
+      const user = await prisma.user.create({ data: { name, email } });
+      return { success: true, message: `User with ID ${user.id} created successfully`, user };
+    },
+    updateUser: async (_parent: any, { id, name, email }: { id: number; name?: string; email?: string }) => {
+      const updatedUser = await prisma.user.update({ where: { id }, data: { name, email } });
+      return { success: true, message: `User with ID ${updatedUser.id} updated successfully`, user: { id: updatedUser.id, name: updatedUser.name, email: updatedUser.email, createdAt: updatedUser.createdAt, updatedAt: updatedUser.updatedAt } };
+    },
+    deleteUser: async (_parent: any, { id }: { id: number }) => {
+      const deletedUser = await prisma.user.delete({ where: { id } });
+      return { success: true, message: `User with ID ${deletedUser.id} deleted successfully`, user: deletedUser };
+    },
+  },
+};
+
+
+const server = new ApolloServer({ typeDefs, resolvers });
+
+server.listen().then(({ url }) => {
+  console.log(`🚀 Server ready at ${url}`);
+});
+ 
