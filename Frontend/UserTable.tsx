@@ -1,4 +1,4 @@
-import { ApolloClient, InMemoryCache, gql, useQuery, useMutation } from '@apollo/client';
+import { ApolloClient, InMemoryCache, gql, useQuery, useMutation, Reference, StoreObject } from '@apollo/client';
 import { useEffect, useState } from 'react';
 
 
@@ -15,6 +15,7 @@ const client = new ApolloClient({
   cache: new InMemoryCache()
 });
 
+//Los querys de graphql
 const GET_USERS = gql`
   query GetUsers { 
     users {
@@ -27,6 +28,27 @@ const GET_USERS = gql`
   }
 `;
 
+const EDIT_USER = gql`
+  mutation UpdateUser($id: Int!, $name: String!, $email: String!) {
+    updateUser(id: $id, name: $name, email: $email) {
+      id
+      name
+      email
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+const DELETE_USER = gql`
+  mutation DeleteUser($id: Int!) {
+    deleteUser(id: $id) {
+      id
+    }
+  }
+`;
+
+//El user teble con las funcionalidades de los botones
 function UserTable() {
   const { loading, error, data } = useQuery(GET_USERS, { client });
 
@@ -55,34 +77,55 @@ function UserTable() {
         email = "";
       })
       .catch((err) => console.error(err));
+      window.location.reload();
   };
 
   const handleEditUser = async (id: number, name: string, email: string) => {
     try {
-      const user = await editUser(id, name, email);
+      const { data } = await editUser({
+        variables: { id, name, email },
+      });
+      const user = data.editUser;
       const row = document.getElementById(`user-${user.id}`);
       if (row) {
         row.innerHTML = `
-          <td>${user.id}</td>
-          <td>${user.name}</td>
-          <td>${user.email}</td>
-          <td>${new Date(parseInt(user.createdAt)).toLocaleString()}</td>
-          <td>${new Date(parseInt(user.updatedAt)).toLocaleString()}</td>
-          <td>
-            <button onclick="showEditForm(${user.id}, '${user.name}', '${user.email}')">Editar</button>
-            <button onclick="deleteUser(${user.id})">Eliminar</button>
-          </td>
-        `;
+      <td>${user.id}</td>
+      <td>${user.name}</td>
+      <td>${user.email}</td>
+      <td>${new Date(parseInt(user.createdAt)).toLocaleString()}</td>
+      <td>${new Date(parseInt(user.updatedAt)).toLocaleString()}</td>
+      <td>
+      <button onclick="showEditForm(${user.id}, '${user.name}', '${user.email}')">Editar</button>
+      <button onclick="deleteUser(${user.id})">Eliminar</button>
+      </td>
+`;
+
       }
     } catch (err) {
       console.error(err);
     }
   };
+
+  const [deleteUser] = useMutation(DELETE_USER, {
+    client,
+    update(cache, { data: { deleteUser } }) {
+      cache.modify({
+        fields: {
+          users(existingUsers = [], { readField }) {
+            return existingUsers.filter(
+              (userRef: Reference | StoreObject | undefined) => deleteUser.id !== readField("id", userRef)
+            );
+          },
+        },
+      });
+    },
+  });
   
 
   const [showCreateUserForm, setShowCreateUserForm] = useState(false);
   const [showModifyUserForm, setShowModifyUserForm] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [editUser] = useMutation(EDIT_USER, { client });
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -99,7 +142,7 @@ function UserTable() {
   const handleHideCreateUserForm = () => {
     setShowCreateUserForm(false);
   };
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await handleCreateUser(name, email);
@@ -108,6 +151,13 @@ function UserTable() {
     setShowCreateUserForm(false);
   };
 
+  const handleModifyUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedUser) return;
+    const { id, name, email } = selectedUser;
+    await handleEditUser(id, name, email);
+    setShowModifyUserForm(false);
+  };
 
   return (
     <div>
@@ -175,17 +225,17 @@ function UserTable() {
                   setShowModifyUserForm(true);
                 }}>Modify</button>
               </td>
-              {showModifyUserForm && (
+              {showModifyUserForm && selectedUser && (
                 <div id="modal-modify" className="modal-overlay">
                   <div className="modal-content">
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleModifyUser}>
                       <label htmlFor="name">Name:</label>
                       <input
                         type="text"
                         id="name"
                         name="name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
+                        value={selectedUser.name}
+                        onChange={(e) => setSelectedUser({ ...selectedUser, name: e.target.value })}
                         required
                         title="Please enter a name"
                       />
@@ -194,16 +244,13 @@ function UserTable() {
                         type="email"
                         id="email"
                         name="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        value={selectedUser.email}
+                        onChange={(e) => setSelectedUser({ ...selectedUser, email: e.target.value })}
                         required
                         title="Please enter a valid email address"
                       />
-                      <button type="submit">Save changes</button>
-                      <button id="cancel-button" type="button" onClick={() => {
-                        setShowModifyUserForm(false);
-                        setSelectedUser(null);
-                      }}>
+                      <button type="submit">Save</button>
+                      <button id="cancel-button" type="button" onClick={() => setShowModifyUserForm(false)}>
                         Cancel
                       </button>
                     </form>
@@ -211,7 +258,7 @@ function UserTable() {
                 </div>
               )}
 
-              <td><button className="red-button"> Delete</button></td>
+              <td><button className="red-button" onClick={() => deleteUser({ variables: { id: user.id } })}> Delete</button></td>
             </tr>
           ))}
         </tbody>
