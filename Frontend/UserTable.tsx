@@ -1,5 +1,5 @@
 import { useQuery, useMutation, Reference, StoreObject } from '@apollo/client';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { client } from '../Backend/apolloclient';
 import { GET_USERS, EDIT_USER, DELETE_USER } from '../Backend/graphqlQuery';
 
@@ -11,7 +11,7 @@ interface User {
   updatedAt: Date;
 }
 
-//El user teble con las funcionalidades de los botones
+//All button functions to user table
 function UserTable() {
   const { loading, error, data } = useQuery(GET_USERS, { client });
 

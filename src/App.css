@@ -36,13 +36,14 @@ table {
   border: 1px solid #ddd;
   margin-top: 1rem;
   border-collapse: separate;
+  border-spacing: 0;
   margin-top: 1rem;
   margin: 0 auto;
 }
 
 table th,
 table td {
-  padding: 10px;
+  padding: 20px;
   text-align: left;
   border-bottom: 1px solid #ddd;
 }
@@ -64,7 +65,7 @@ table tr:hover {
 }
 
 .blue-button:hover {
-  background-color: #0056b3;
+  background-color: #00b336;
 }
 
 .red-button {
@@ -73,7 +74,7 @@ table tr:hover {
 }
 
 .red-button:hover {
-  background-color: #9c2e3e;
+  background-color: #e01735;
 }
 
 table tr {
@@ -97,7 +98,7 @@ table tr:hover {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1;
+  z-index: -1;
 }
 
 .modal-content {

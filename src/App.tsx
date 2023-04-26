@@ -1,5 +1,5 @@
 import { ApolloProvider, ApolloClient, InMemoryCache } from '@apollo/client';
-import UserTable from '../Frontend/UserTable.tsx'
+import Table from '../Frontend/UserTable.tsx'
 import './App.css'
 
 const client = new ApolloClient({
@@ -10,7 +10,7 @@ const client = new ApolloClient({
 function App() {
   return (
     <ApolloProvider client={client}>
-      <UserTable />
+      <Table />
     </ApolloProvider>
   );
 }
