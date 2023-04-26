@@ -1,6 +1,7 @@
-import { ApolloClient, InMemoryCache, gql, useQuery, useMutation, Reference, StoreObject } from '@apollo/client';
+import { useQuery, useMutation, Reference, StoreObject } from '@apollo/client';
 import { useEffect, useState } from 'react';
-
+import { client } from '../Backend/apolloclient';
+import { GET_USERS, EDIT_USER, DELETE_USER } from '../Backend/graphqlQuery';
 
 interface User {
   id: number;
@@ -10,50 +11,11 @@ interface User {
   updatedAt: Date;
 }
 
-const client = new ApolloClient({
-  uri: 'http://localhost:4000',
-  cache: new InMemoryCache()
-});
-
-//Los querys de graphql
-const GET_USERS = gql`
-  query GetUsers { 
-    users {
-      id
-      name
-      email
-      createdAt
-      updatedAt
-    }
-  }
-`;
-
-const EDIT_USER = gql`
-  mutation UpdateUser($id: Int!, $name: String!, $email: String!) {
-    updateUser(id: $id, name: $name, email: $email) {
-      id
-      name
-      email
-      createdAt
-      updatedAt
-    }
-  }
-`;
-
-const DELETE_USER = gql`
-  mutation DeleteUser($id: Int!) {
-    deleteUser(id: $id) {
-      id
-    }
-  }
-`;
-
 //El user teble con las funcionalidades de los botones
 function UserTable() {
   const { loading, error, data } = useQuery(GET_USERS, { client });
 
   const handleCreateUser = async (name: string, email: string) => {
-
     fetch("http://localhost:4000/graphql", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -77,8 +39,9 @@ function UserTable() {
         email = "";
       })
       .catch((err) => console.error(err));
-      window.location.reload();
+    window.location.reload();
   };
+
 
   const handleEditUser = async (id: number, name: string, email: string) => {
     try {
@@ -120,7 +83,7 @@ function UserTable() {
       });
     },
   });
-  
+
 
   const [showCreateUserForm, setShowCreateUserForm] = useState(false);
   const [showModifyUserForm, setShowModifyUserForm] = useState(false);
@@ -257,7 +220,6 @@ function UserTable() {
                   </div>
                 </div>
               )}
-
               <td><button className="red-button" onClick={() => deleteUser({ variables: { id: user.id } })}> Delete</button></td>
             </tr>
           ))}
